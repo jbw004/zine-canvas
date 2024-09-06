@@ -40,3 +40,88 @@
 .read-the-docs {
   color: #888;
 }
+
+.App {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.prompt-panel-overlay {
+  position: absolute;
+  bottom: 10px;  /* Changed from top to bottom */
+  right: 10px;   /* Changed from left to right */
+  z-index: 1000;
+  background: rgba(40, 40, 40, 0.9);  /* Darkened background */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  max-width: 300px;
+  color: white;  /* White text for better contrast */
+}
+
+/* Styles for the PromptPanel content */
+.prompt-panel-overlay h2 {
+  margin-top: 0;
+  font-size: 1.2em;
+  color: white;
+}
+
+.prompt-panel-overlay input,
+.prompt-panel-overlay select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+}
+
+.prompt-panel-overlay button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.prompt-panel-overlay button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the range input (slider) */
+.prompt-panel-overlay input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;
+  background: #444;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity .2s;
+}
+
+.prompt-panel-overlay input[type="range"]:hover {
+  opacity: 1;
+}
+
+.prompt-panel-overlay input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+}
+
+.prompt-panel-overlay input[type="range"]::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+}

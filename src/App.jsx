@@ -5,23 +5,26 @@ import './App.css'
 import React from 'react'
 import { Tldraw } from 'tldraw'
 import './index.css' // Vite usually has some default styling
+import PromptPanel from './components/PromptPanel'  // Corrected import path
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [zineData, setZineData] = useState(null);
+
+  const handleGenerate = (promptData) => {
+    console.log("Generating zine with:", promptData);
+    // TODO: Implement actual zine generation and update zineData state
+  };
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>My Zine Canvas</h1>
-      </header>
+      {/* Fullscreen canvas container */}
+      <div style={{ position: 'fixed', inset: 0 }}>
+        <Tldraw showMenu={false} showPages={false} />
+      </div>
 
-      {/* Main canvas container */}
-      <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
-
-        {/* Container for Tldraw to ensure it layers properly */}
-        <div style={{ position: 'fixed', inset: 0 }}>
-          <Tldraw />
-        </div>
+      {/* PromptPanel overlay */}
+      <div className="prompt-panel-overlay">
+        <PromptPanel onGenerate={handleGenerate} />
       </div>
     </div>
   )
