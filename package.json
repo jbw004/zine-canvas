@@ -7,11 +7,16 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server.js"
   },
   "dependencies": {
     "@tldraw/tldraw": "^2.4.6",
     "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.19.2",
+    "nanoid": "^5.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tldraw": "^2.4.6"
