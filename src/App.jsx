@@ -1,31 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useCallback } from 'react'
 import './App.css'
 import React from 'react'
-import { Tldraw } from 'tldraw'
-import './index.css' // Vite usually has some default styling
-import PromptPanel from './components/PromptPanel'  // Corrected import path
+import { Tldraw, useEditor } from 'tldraw'
+import './index.css'
+import PromptPanel from './components/PromptPanel'
+import { generateZineOutline } from './services/api'
+import { createShapesFromOutline } from './utils/tldrawUtils'
 
 function App() {
-  const [zineData, setZineData] = useState(null);
+  const [zineOutline, setZineOutline] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [tldrAwAPI, setTldrAwAPI] = useState(null)
 
-  const handleGenerate = (promptData) => {
-    console.log("Generating zine with:", promptData);
-    // TODO: Implement actual zine generation and update zineData state
-  };
+  const handleMount = useCallback((api) => {
+    setTldrAwAPI(api)
+  }, [])
+
+  const handleGenerate = async (promptData) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const outline = await generateZineOutline(promptData.theme, promptData.style, promptData.complexity)
+      setZineOutline(outline)
+      
+      if (tldrAwAPI) {
+        const shapes = createShapesFromOutline(outline)
+        tldrAwAPI.createShapes(shapes)
+        tldrAwAPI.zoomToFit()
+      }
+    } catch (err) {
+      setError('Failed to generate zine outline. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="App">
-      {/* Fullscreen canvas container */}
       <div style={{ position: 'fixed', inset: 0 }}>
-        <Tldraw showMenu={false} showPages={false} />
+        <Tldraw
+          showMenu={false}
+          showPages={false}
+          onMount={handleMount}
+        />
       </div>
 
-      {/* PromptPanel overlay */}
       <div className="prompt-panel-overlay">
-        <PromptPanel onGenerate={handleGenerate} />
+        <PromptPanel onGenerate={handleGenerate} isLoading={isLoading} />
       </div>
+
+      {error && <div className="error-message">{error}</div>}
     </div>
   )
 }

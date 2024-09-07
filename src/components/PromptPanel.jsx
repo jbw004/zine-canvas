@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const PromptPanel = ({ onGenerate }) => {
+const PromptPanel = ({ onGenerate, isLoading }) => {
   const [theme, setTheme] = useState('');
   const [style, setStyle] = useState('');
   const [complexity, setComplexity] = useState(5);
@@ -17,10 +17,12 @@ const PromptPanel = ({ onGenerate }) => {
         value={theme}
         onChange={(e) => setTheme(e.target.value)}
         placeholder="e.g., Cyberpunk, Nature"
+        disabled={isLoading}
       />
       <select
         value={style}
         onChange={(e) => setStyle(e.target.value)}
+        disabled={isLoading}
       >
         <option value="">Select a style</option>
         <option value="minimalist">Minimalist</option>
@@ -36,9 +38,12 @@ const PromptPanel = ({ onGenerate }) => {
           max="10"
           value={complexity}
           onChange={(e) => setComplexity(Number(e.target.value))}
+          disabled={isLoading}
         />
       </div>
-      <button onClick={handleGenerate}>Generate Zine</button>
+      <button onClick={handleGenerate} disabled={isLoading}>
+        {isLoading ? 'Generating...' : 'Generate Zine'}
+      </button>
     </div>
   );
 };

@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@tldraw/tldraw": "^2.4.6",
+    "axios": "^1.7.7",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tldraw": "^2.4.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
