@@ -26,49 +26,64 @@ app.use(express.json());
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
 app.post('/generate-outline', async (req, res) => {
-    try {
-      console.log('Received request:', req.body);
-      
-      const { theme, style, complexity } = req.body;
-      
-      console.log('Sending request to Anthropic API');
-      
-      const response = await axios.post(
-        ANTHROPIC_API_URL,
-        {
-          model: "claude-3-5-sonnet-20240620",
-          max_tokens: 1000,
-          messages: [{
-            role: "user",
-            content: `Create an outline for a zine with the following parameters:
-            Theme: ${theme}
-            Style: ${style}
-            Complexity: ${complexity} (on a scale of 1-10)
-            
-            Please provide a structured outline with sections and brief descriptions for each page of the zine.`
-          }]
+  try {
+    console.log('Received request:', req.body);
+    
+    const { theme, style, complexity } = req.body;
+    
+    console.log('Sending request to Anthropic API');
+    
+    const response = await axios.post(
+      ANTHROPIC_API_URL,
+      {
+        model: "claude-3-5-sonnet-20240620",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `Create a structured outline for a ${complexity}-page zine with the following parameters:
+          Theme: ${theme}
+          Style: ${style}
+          
+          Please provide the outline in the following format:
+
+          Page 1
+          [Layout Type: title-image, full-image, or image-text]
+          [Brief description of content]
+
+          Page 2
+          [Layout Type: title-image, full-image, or image-text]
+          [Brief description of content]
+
+          ... (continue for ${complexity} pages)
+
+          Use the following guidelines:
+          - For 'title-image' layout: Include a title and image description
+          - For 'full-image' layout: Include only an image description
+          - For 'image-text' layout: Include both an image description and text content description
+          
+          Ensure the content fits the theme and style specified.`
+        }]
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': config.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': config.ANTHROPIC_API_KEY,
-            'anthropic-version': '2023-06-01'
-          },
-        }
-      );
-  
-      console.log('Anthropic API response received:', JSON.stringify(response.data, null, 2));
-      
-      // Ensure we're sending the correct part of the response
-      if (response.data && response.data.content) {
-        console.log('Sending content to client:', response.data.content);
-        res.json({ content: response.data.content });
-      } else {
-        console.error('Unexpected Anthropic API response structure:', response.data);
-        throw new Error('Unexpected Anthropic API response structure');
       }
-    } catch (error) {
-      console.error('Error details:', error);
+    );
+
+    console.log('Anthropic API response received:', JSON.stringify(response.data, null, 2));
+    
+    if (response.data && response.data.content) {
+      console.log('Sending content to client:', response.data.content);
+      res.json({ content: response.data.content });
+    } else {
+      console.error('Unexpected Anthropic API response structure:', response.data);
+      throw new Error('Unexpected Anthropic API response structure');
+    }
+  } catch (error) {
+    console.error('Error details:', error);
       if (error.response) {
         console.error('Error response:', error.response.data);
         console.error('Error status:', error.response.status);

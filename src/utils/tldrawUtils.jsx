@@ -1,4 +1,4 @@
-import { HTMLContainer, BaseBoxShapeUtil, Rectangle2d } from '@tldraw/tldraw'
+import { BaseBoxShapeUtil, Rectangle2d, createShapeId } from '@tldraw/tldraw'
 import React from 'react'
 
 export class ZinePageLayoutUtil extends BaseBoxShapeUtil {
@@ -25,7 +25,7 @@ export class ZinePageLayoutUtil extends BaseBoxShapeUtil {
     const { w, h, layout, content } = shape.props
     return (
       <HTMLContainer style={{ width: w, height: h }}>
-        <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: '#fff' }}>
+        <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: '#f0f0f0', padding: '10px' }}>
           {renderLayout(layout, content)}
         </div>
       </HTMLContainer>
@@ -39,31 +39,31 @@ export class ZinePageLayoutUtil extends BaseBoxShapeUtil {
 
 function renderLayout(layout, content) {
   switch (layout) {
-    case 'title':
+    case 'title-image':
       return (
         <>
-          <div style={{ position: 'absolute', top: '10%', left: '10%', right: '10%', fontSize: '24px', fontWeight: 'bold' }}>
-            {content.title}
+          <div style={{ width: '100%', height: '30%', backgroundColor: 'lightblue', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '10px' }}>
+            [Insert Title]
           </div>
-          <div style={{ position: 'absolute', bottom: '10%', left: '10%', right: '10%', fontSize: '18px' }}>
-            {content.subtitle}
+          <div style={{ width: '100%', height: '65%', backgroundColor: 'lightpink', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            [Upload Image]
           </div>
         </>
       )
-    case 'text':
+    case 'full-image':
       return (
-        <div style={{ padding: '10%', fontSize: '14px' }}>
-          {content.text}
+        <div style={{ width: '100%', height: '100%', backgroundColor: 'lightpink', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          [Upload Image]
         </div>
       )
-    case 'image':
+    case 'image-text':
       return (
         <>
-          <div style={{ position: 'absolute', top: '10%', left: '10%', right: '10%', bottom: '30%', backgroundColor: '#ccc' }}>
-            [Image Placeholder]
+          <div style={{ width: '100%', height: '60%', backgroundColor: 'lightpink', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '10px' }}>
+            [Upload Image]
           </div>
-          <div style={{ position: 'absolute', bottom: '10%', left: '10%', right: '10%', fontSize: '14px' }}>
-            {content.caption}
+          <div style={{ width: '100%', height: '35%', backgroundColor: 'lightblue', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            [Insert Text]
           </div>
         </>
       )
@@ -72,60 +72,115 @@ function renderLayout(layout, content) {
   }
 }
 
-export function createShapesFromOutline(outline) {
+export function createShapesFromOutline(content) {
   const shapes = []
-  const lines = outline.split('\n')
+  const pages = content[0].text.split('\n\n')
   const pageWidth = 400
   const pageHeight = 600
   const padding = 20
 
-  let currentPage = { type: 'title', content: {} }
-  let pageIndex = 0
+  pages.forEach((page, pageIndex) => {
+    const lines = page.split('\n')
+    if (lines[0].startsWith('Page')) {
+      const layout = determineLayout(lines[1])
+      const groupId = createShapeId()
+      
+      // Create group shape
+      shapes.push({
+        id: groupId,
+        type: 'group',
+        x: (pageIndex % 2) * (pageWidth + padding),
+        y: Math.floor(pageIndex / 2) * (pageHeight + padding),
+        props: {}
+      })
 
-  lines.forEach((line, index) => {
-    if (line.trim() === '') return
-
-    if (line.startsWith('Title:')) {
-      if (currentPage.content.title) {
-        shapes.push(createPageShape(currentPage, pageIndex, pageWidth, pageHeight, padding))
-        pageIndex++
-        currentPage = { type: 'title', content: {} }
-      }
-      currentPage.content.title = line.replace('Title:', '').trim()
-    } else if (line.match(/^\d+\./)) {
-      if (currentPage.type !== 'text') {
-        shapes.push(createPageShape(currentPage, pageIndex, pageWidth, pageHeight, padding))
-        pageIndex++
-        currentPage = { type: 'text', content: { text: '' } }
-      }
-      currentPage.content.text += line + '\n'
-    } else {
-      if (currentPage.type === 'title') {
-        currentPage.content.subtitle = line.trim()
-      } else {
-        currentPage.content.text += line + '\n'
-      }
+      // Create child shapes
+      const pageShapes = createPageShapes(layout, pageIndex, pageWidth, pageHeight, padding)
+      pageShapes.forEach(shape => {
+        shapes.push({
+          ...shape,
+          parentId: groupId
+        })
+      })
     }
   })
-
-  // Add the last page
-  shapes.push(createPageShape(currentPage, pageIndex, pageWidth, pageHeight, padding))
 
   return shapes
 }
 
-function createPageShape(page, index, width, height, padding) {
-  return {
-    type: 'zine-page-layout',
-    x: (index % 2) * (width + padding),
-    y: Math.floor(index / 2) * (height + padding),
+function createPageShapes(layout, pageIndex, width, height, padding) {
+  const baseX = (pageIndex % 2) * (width + padding)
+  const baseY = Math.floor(pageIndex / 2) * (height + padding)
+  
+  const commonShapeProps = {
+    type: 'geo',
     props: {
       w: width,
       h: height,
-      layout: page.type,
-      content: page.content,
+      fill: 'solid',
+      color: 'light-blue',
     },
   }
+
+  switch (layout) {
+    case 'title-image':
+      return [
+        {
+          ...commonShapeProps,
+          id: createShapeId(),
+          x: baseX,
+          y: baseY,
+          props: { ...commonShapeProps.props, h: height * 0.3, color: 'light-blue' },
+        },
+        {
+          ...commonShapeProps,
+          id: createShapeId(),
+          x: baseX,
+          y: baseY + height * 0.3,
+          props: { ...commonShapeProps.props, h: height * 0.7, color: 'light-red' },
+        },
+      ]
+    case 'full-image':
+      return [
+        {
+          ...commonShapeProps,
+          id: createShapeId(),
+          x: baseX,
+          y: baseY,
+          props: { ...commonShapeProps.props, color: 'light-red' },
+        },
+      ]
+    case 'image-text':
+      return [
+        {
+          ...commonShapeProps,
+          id: createShapeId(),
+          x: baseX,
+          y: baseY,
+          props: { ...commonShapeProps.props, h: height * 0.6, color: 'light-red' },
+        },
+        {
+          ...commonShapeProps,
+          id: createShapeId(),
+          x: baseX,
+          y: baseY + height * 0.6,
+          props: { ...commonShapeProps.props, h: height * 0.4, color: 'light-blue' },
+        },
+      ]
+    default:
+      return []
+  }
+}
+
+function determineLayout(layoutLine) {
+  if (layoutLine.includes('title-image')) {
+    return 'title-image'
+  } else if (layoutLine.includes('full-image')) {
+    return 'full-image'
+  } else if (layoutLine.includes('image-text')) {
+    return 'image-text'
+  }
+  return 'title-image' // default layout
 }
 
 export function getColorForLine(line) {
@@ -133,3 +188,5 @@ export function getColorForLine(line) {
   if (line.match(/^\d+\./)) return 'green'
   return 'black'
 }
+
+export { createPageShapes, determineLayout }

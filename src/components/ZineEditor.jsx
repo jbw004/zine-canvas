@@ -1,11 +1,11 @@
-import React from 'react'
-import { useEditor, createShapeId } from '@tldraw/tldraw'
-import { generateZineOutline } from '../services/api'
-import { createShapesFromOutline } from '../utils/tldrawUtils.jsx'
-import PromptPanel from './PromptPanel'
+import React from 'react';
+import { useEditor } from '@tldraw/tldraw';
+import { generateZineOutline } from '../services/api';
+import { createShapesFromOutline } from '../utils/tldrawUtils.jsx';
+import PromptPanel from './PromptPanel';
 
 function ZineEditor({ isLoading, setIsLoading, setError }) {
-  const editor = useEditor()
+  const editor = useEditor();
 
   const handleGenerate = React.useCallback(async (promptData) => {
     setIsLoading(true);
@@ -14,29 +14,20 @@ function ZineEditor({ isLoading, setIsLoading, setError }) {
       const response = await generateZineOutline(promptData.theme, promptData.style, promptData.complexity);
       console.log('Full API response:', response);
       
-      if (response && response.content && Array.isArray(response.content)) {
-        const textContent = response.content.find(item => item.type === 'text');
-        if (textContent && textContent.text) {
-          // Clear existing shapes
-          const allShapeIds = editor.getCurrentPageShapeIds();
-          if (allShapeIds.length > 0) {
-            editor.deleteShapes(allShapeIds);
-          }
-  
-          // Create new shapes
-          const shapes = createShapesFromOutline(textContent.text);
-          const newShapes = shapes.map(shape => ({
-            ...shape,
-            id: createShapeId(),
-          }));
-          editor.createShapes(newShapes);
-  
-          // Adjust the camera
-          editor.zoomToFit();
-          editor.setCamera({ x: 0, y: 0, z: 1 });
-        } else {
-          throw new Error('No text content found in the response');
+      if (response && response.content) {
+        // Clear existing shapes
+        const allShapeIds = editor.getCurrentPageShapeIds();
+        if (allShapeIds.length > 0) {
+          editor.deleteShapes(allShapeIds);
         }
+
+        // Create new shapes and groups
+        const shapesAndGroups = createShapesFromOutline(response.content);
+        editor.createShapes(shapesAndGroups);
+
+        // Adjust the camera
+        editor.zoomToFit();
+        editor.setCamera({ x: 0, y: 0, z: 1 });
       } else {
         throw new Error('Unexpected API response structure');
       }
@@ -53,7 +44,7 @@ function ZineEditor({ isLoading, setIsLoading, setError }) {
       isLoading={isLoading}
       onGenerate={handleGenerate}
     />
-  )
+  );
 }
 
-export default ZineEditor
+export default ZineEditor;
