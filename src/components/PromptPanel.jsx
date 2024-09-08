@@ -1,51 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
-const PromptPanel = ({ onGenerate, isLoading }) => {
-  const [theme, setTheme] = useState('');
-  const [style, setStyle] = useState('');
-  const [complexity, setComplexity] = useState(5);
+function PromptPanel({ isLoading, onGenerate }) {
+  const [theme, setTheme] = useState('')
+  const [style, setStyle] = useState('')
+  const [complexity, setComplexity] = useState(5)
 
-  const handleGenerate = () => {
-    onGenerate({ theme, style, complexity });
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (typeof onGenerate === 'function') {
+      onGenerate({ theme, style, complexity })
+    } else {
+      console.error('onGenerate is not a function')
+    }
+  }
 
   return (
-    <div>
-      <h2>Create Your Zine</h2>
-      <input
-        type="text"
-        value={theme}
-        onChange={(e) => setTheme(e.target.value)}
-        placeholder="e.g., Cyberpunk, Nature"
-        disabled={isLoading}
-      />
-      <select
-        value={style}
-        onChange={(e) => setStyle(e.target.value)}
-        disabled={isLoading}
-      >
-        <option value="">Select a style</option>
-        <option value="minimalist">Minimalist</option>
-        <option value="colorful">Colorful</option>
-        <option value="vintage">Vintage</option>
-        <option value="futuristic">Futuristic</option>
-      </select>
-      <div>
-        <label>Complexity: {complexity}</label>
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={complexity}
-          onChange={(e) => setComplexity(Number(e.target.value))}
-          disabled={isLoading}
-        />
+    <div className="prompt-panel-overlay">
+      <div className="prompt-panel">
+        <h2>Generate Zine Outline</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="theme">Theme:</label>
+            <input
+              type="text"
+              id="theme"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="style">Style:</label>
+            <input
+              type="text"
+              id="style"
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="complexity">Complexity (1-10):</label>
+            <input
+              type="range"
+              id="complexity"
+              min="1"
+              max="10"
+              value={complexity}
+              onChange={(e) => setComplexity(Number(e.target.value))}
+              required
+            />
+          </div>
+          <button type="submit" disabled={isLoading === true}>
+            {isLoading ? 'Generating...' : 'Generate Outline'}
+          </button>
+        </form>
       </div>
-      <button onClick={handleGenerate} disabled={isLoading}>
-        {isLoading ? 'Generating...' : 'Generate Zine'}
-      </button>
     </div>
-  );
-};
+  )
+}
 
-export default PromptPanel;
+export default PromptPanel

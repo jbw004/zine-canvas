@@ -1,42 +1,43 @@
+import { HTMLContainer, BaseBoxShapeUtil, Rectangle2d } from 'tldraw'
 import React from 'react'
-import { BaseBoxShapeUtil, HTMLContainer, Rectangle2d } from 'tldraw'
-import { nanoid } from 'nanoid'
 
-export const ZinePageShapeUtil = () => {
-  return class ZinePageUtil extends BaseBoxShapeUtil {
-    static type = 'zine-page'
-    static props = {
-      w: Number,
-      h: Number,
-      text: String,
-      color: String,
-    }
+export class ZinePageUtil extends BaseBoxShapeUtil {
+  static type = 'zine-page'
 
-    getDefaultProps() {
-      return {
-        w: 200,
-        h: 300,
-        text: '',
-        color: 'black',
-      }
+  getDefaultProps() {
+    return {
+      w: 200,
+      h: 300,
+      text: '',
+      color: 'black',
     }
+  }
 
-    component(shape) {
-      const { w, h, text, color } = shape.props
-      return (
-        <HTMLContainer style={{ width: w, height: h, overflow: 'hidden' }}>
-          <div style={{ padding: '10px', color, fontSize: '14px' }}>{text}</div>
-        </HTMLContainer>
-      )
-    }
+  getGeometry(shape) {
+    return new Rectangle2d({
+      width: shape.props.w,
+      height: shape.props.h,
+      isFilled: true,
+    })
+  }
 
-    indicator(shape) {
-      return <rect width={shape.props.w} height={shape.props.h} />
-    }
+  component(shape) {
+    const { w, h, text, color } = shape.props
+    return (
+      <HTMLContainer style={{ width: w, height: h }}>
+        <div style={{ padding: '10px', color, fontSize: '14px', whiteSpace: 'pre-wrap' }}>
+          {text}
+        </div>
+      </HTMLContainer>
+    )
+  }
+
+  indicator(shape) {
+    return <rect width={shape.props.w} height={shape.props.h} />
   }
 }
 
-export const createShapesFromOutline = (outline) => {
+export function createShapesFromOutline(outline) {
   const shapes = []
   const lines = outline.split('\n')
   const pageWidth = 200
@@ -46,8 +47,7 @@ export const createShapesFromOutline = (outline) => {
   lines.forEach((line, index) => {
     if (line.trim() === '') return
 
-    const shape = {
-      id: `shape:${nanoid()}`,
+    shapes.push({
       type: 'zine-page',
       x: (index % 2) * (pageWidth + padding),
       y: Math.floor(index / 2) * (pageHeight + padding),
@@ -57,20 +57,14 @@ export const createShapesFromOutline = (outline) => {
         text: line.trim(),
         color: getColorForLine(line),
       },
-    }
-
-    shapes.push(shape)
+    })
   })
 
   return shapes
 }
 
 function getColorForLine(line) {
-  if (line.includes('Title:')) {
-    return 'blue'
-  } else if (line.match(/^\d+\./)) {
-    return 'green'
-  } else {
-    return 'black'
-  }
+  if (line.includes('Title:')) return 'blue'
+  if (line.match(/^\d+\./)) return 'green'
+  return 'black'
 }
