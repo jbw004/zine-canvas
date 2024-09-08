@@ -33,7 +33,8 @@ function ZineEditor({ isLoading, setIsLoading, setError }) {
 
           // Adjust the camera
           editor.zoomToFit()
-          editor.resetCamera()
+          // Instead of resetCamera, we'll use setCamera to reset to default view
+          editor.setCamera({ x: 0, y: 0, z: 1 })
         } else {
           throw new Error('No text content found in the response')
         }
