@@ -8,46 +8,45 @@ function ZineEditor({ isLoading, setIsLoading, setError }) {
   const editor = useEditor()
 
   const handleGenerate = React.useCallback(async (promptData) => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await generateZineOutline(promptData.theme, promptData.style, promptData.complexity)
-      console.log('Full API response:', response)
+      const response = await generateZineOutline(promptData.theme, promptData.style, promptData.complexity);
+      console.log('Full API response:', response);
       
       if (response && response.content && Array.isArray(response.content)) {
-        const textContent = response.content.find(item => item.type === 'text')
+        const textContent = response.content.find(item => item.type === 'text');
         if (textContent && textContent.text) {
           // Clear existing shapes
-          const allShapeIds = editor.getCurrentPageShapeIds()
+          const allShapeIds = editor.getCurrentPageShapeIds();
           if (allShapeIds.length > 0) {
-            editor.deleteShapes(allShapeIds)
+            editor.deleteShapes(allShapeIds);
           }
-
+  
           // Create new shapes
-          const shapes = createShapesFromOutline(textContent.text)
+          const shapes = createShapesFromOutline(textContent.text);
           const newShapes = shapes.map(shape => ({
             ...shape,
             id: createShapeId(),
-          }))
-          editor.createShapes(newShapes)
-
+          }));
+          editor.createShapes(newShapes);
+  
           // Adjust the camera
-          editor.zoomToFit()
-          // Instead of resetCamera, we'll use setCamera to reset to default view
-          editor.setCamera({ x: 0, y: 0, z: 1 })
+          editor.zoomToFit();
+          editor.setCamera({ x: 0, y: 0, z: 1 });
         } else {
-          throw new Error('No text content found in the response')
+          throw new Error('No text content found in the response');
         }
       } else {
-        throw new Error('Unexpected API response structure')
+        throw new Error('Unexpected API response structure');
       }
     } catch (err) {
-      console.error('Error in handleGenerate:', err)
-      setError('Failed to generate zine outline. Please try again.')
+      console.error('Error in handleGenerate:', err);
+      setError('Failed to generate zine outline. Please try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [editor, setIsLoading, setError])
+  }, [editor, setIsLoading, setError]);
 
   return (
     <PromptPanel 
