@@ -1,49 +1,49 @@
-import React from 'react';
-import { useEditor } from '@tldraw/tldraw';
-import { generateZineOutline } from '../services/api';
-import { createShapesFromOutline } from '../utils/tldrawUtils.jsx';
-import PromptPanel from './PromptPanel';
+import React, { useCallback } from 'react';
+import { useEditor, createShapeId } from '@tldraw/tldraw';
+import TemplateSelector from '../components/TemplateSelector';
+import magazineLayoutTemplates from '../components/magazineLayoutTemplates';
 
-function ZineEditor({ isLoading, setIsLoading, setError }) {
+function ZineEditor() {
   const editor = useEditor();
 
-  const handleGenerate = React.useCallback(async (promptData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await generateZineOutline(promptData.theme, promptData.style, promptData.complexity);
-      console.log('Full API response:', response);
-      
-      if (response && response.content) {
-        // Clear existing shapes
-        const allShapeIds = editor.getCurrentPageShapeIds();
-        if (allShapeIds.length > 0) {
-          editor.deleteShapes(allShapeIds);
-        }
-
-        // Create new shapes and groups
-        const shapesAndGroups = createShapesFromOutline(response.content);
-        editor.createShapes(shapesAndGroups);
-
-        // Adjust the camera
-        editor.zoomToFit();
-        editor.setCamera({ x: 0, y: 0, z: 1 });
-      } else {
-        throw new Error('Unexpected API response structure');
-      }
-    } catch (err) {
-      console.error('Error in handleGenerate:', err);
-      setError('Failed to generate zine outline. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [editor, setIsLoading, setError]);
+  const handleTemplateSelect = useCallback((templateKey) => {
+    const template = magazineLayoutTemplates[templateKey];
+    const groupId = createShapeId();
+    const shapes = template.elements.map(element => ({
+      id: createShapeId(),
+      type: 'geo',
+      x: element.x,
+      y: element.y,
+      props: {
+        w: element.width,
+        h: element.height,
+        geo: 'rectangle',
+        color: 'light-blue',
+        text: element.type === 'text' ? element.id : '',
+        fill: element.type === 'image' ? 'none' : 'solid',
+      },
+    }));
+  
+    editor.createShapes(shapes);
+    editor.groupShapes(shapes.map(shape => shape.id), groupId);
+  
+    // Position the new group
+    const currentPageShapes = editor.getCurrentPageShapes();
+    const existingGroups = currentPageShapes.filter(shape => shape.type === 'group');
+    const xOffset = existingGroups.length * (template.width + 20);
+    editor.updateShapes([{
+      id: groupId,
+      type: 'group',
+      x: xOffset,
+      y: 0,
+    }]);
+  
+  }, [editor]);
 
   return (
-    <PromptPanel 
-      isLoading={isLoading}
-      onGenerate={handleGenerate}
-    />
+    <div className="zine-editor">
+      <TemplateSelector onSelect={handleTemplateSelect} />
+    </div>
   );
 }
 

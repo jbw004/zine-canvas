@@ -1,14 +1,15 @@
 import React from 'react';
 import { HTMLContainer, BaseBoxShapeUtil, Rectangle2d } from '@tldraw/tldraw';
+import magazineLayoutTemplates from '../components/magazineLayoutTemplates';
 
 class ZinePageLayoutUtil extends BaseBoxShapeUtil {
   static type = 'zine-page-layout';
 
   getDefaultProps() {
     return {
-      w: 400,
-      h: 600,
-      layout: 'title',
+      w: 213,
+      h: 276,
+      layout: 'cover',
       content: {},
     };
   }
@@ -23,10 +24,12 @@ class ZinePageLayoutUtil extends BaseBoxShapeUtil {
 
   component(shape) {
     const { w, h, layout, content } = shape.props;
+    const template = magazineLayoutTemplates[layout];
+
     return (
       <HTMLContainer style={{ width: w, height: h }}>
         <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: '#fff' }}>
-          {renderLayout(layout, content)}
+          {template.elements.map((element) => renderElement(element, content[element.id]))}
         </div>
       </HTMLContainer>
     );
@@ -37,35 +40,44 @@ class ZinePageLayoutUtil extends BaseBoxShapeUtil {
   }
 }
 
-function renderLayout(layout, content) {
-  switch (layout) {
-    case 'title':
-      return (
-        <>
-          <div style={{ position: 'absolute', top: '10%', left: '10%', right: '10%', fontSize: '24px', fontWeight: 'bold' }}>
-            {content.title}
-          </div>
-          <div style={{ position: 'absolute', bottom: '10%', left: '10%', right: '10%', fontSize: '18px' }}>
-            {content.subtitle}
-          </div>
-        </>
-      );
+function renderElement(element, content) {
+  switch (element.type) {
     case 'text':
       return (
-        <div style={{ padding: '10%', fontSize: '14px' }}>
-          {content.text}
+        <div
+          key={element.id}
+          style={{
+            position: 'absolute',
+            left: element.x,
+            top: element.y,
+            width: element.width,
+            height: element.height,
+            fontSize: element.fontSize,
+            fontWeight: element.fontWeight,
+          }}
+        >
+          {content || '[Text Placeholder]'}
         </div>
       );
     case 'image':
       return (
-        <>
-          <div style={{ position: 'absolute', top: '10%', left: '10%', right: '10%', bottom: '30%', backgroundColor: '#ccc' }}>
-            [Image Placeholder]
-          </div>
-          <div style={{ position: 'absolute', bottom: '10%', left: '10%', right: '10%', fontSize: '14px' }}>
-            {content.caption}
-          </div>
-        </>
+        <div
+          key={element.id}
+          style={{
+            position: 'absolute',
+            left: element.x,
+            top: element.y,
+            width: element.width,
+            height: element.height,
+            backgroundColor: '#ccc',
+          }}
+        >
+          {content ? (
+            <img src={content} alt="User uploaded" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            '[Image Placeholder]'
+          )}
+        </div>
       );
     default:
       return null;

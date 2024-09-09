@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Tldraw } from '@tldraw/tldraw'
 import '@tldraw/tldraw/tldraw.css'
 import './App.css'
-import { ZinePageLayoutUtil } from './utils/tldrawUtils.jsx';
+import ZinePageLayoutUtil from './components/ZinePageLayout';
 import ZineEditor from './components/ZineEditor'
 
 class ErrorBoundary extends React.Component {
@@ -33,16 +33,18 @@ function TldrawWrapper() {
   const [error, setError] = useState(null)
 
   return (
-    <Tldraw
-      shapeUtils={[ZinePageLayoutUtil]}
-    >
-      <ZineEditor
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        setError={setError}
-      />
+    <div className="tldraw-wrapper">
+      <Tldraw
+        shapeUtils={[ZinePageLayoutUtil]}
+      >
+        <ZineEditor
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          setError={setError}
+        />
+      </Tldraw>
       {error && <div className="error-message">{error}</div>}
-    </Tldraw>
+    </div>
   )
 }
 
