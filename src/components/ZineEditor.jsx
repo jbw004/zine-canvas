@@ -9,20 +9,35 @@ function ZineEditor() {
   const handleTemplateSelect = useCallback((templateKey) => {
     const template = magazineLayoutTemplates[templateKey];
     const groupId = createShapeId();
-    const shapes = template.elements.map(element => ({
-      id: createShapeId(),
-      type: 'geo',
-      x: element.x,
-      y: element.y,
-      props: {
-        w: element.width,
-        h: element.height,
-        geo: 'rectangle',
-        color: 'light-blue',
-        text: element.type === 'text' ? element.id : '',
-        fill: element.type === 'image' ? 'none' : 'solid',
-      },
-    }));
+    const shapes = template.elements.map(element => {
+      const baseShape = {
+        id: createShapeId(),
+        type: element.type === 'image' ? 'image' : 'geo',
+        x: element.x,
+        y: element.y,
+        props: {
+          w: element.width,
+          h: element.height,
+        },
+      };
+  
+      if (element.type === 'image') {
+        baseShape.props.assetId = null;  // You'll need to set this to a valid asset ID when you have an image
+      } else if (element.type === 'text') {
+        baseShape.props.text = element.id;
+        baseShape.props.color = 'light-blue';
+        baseShape.props.size = 'm';
+        baseShape.props.font = 'draw';
+        baseShape.props.align = 'middle';
+        baseShape.props.verticalAlign = 'middle';
+      } else {
+        baseShape.props.geo = 'rectangle';
+        baseShape.props.color = 'light-blue';
+        baseShape.props.fill = 'solid';
+      }
+  
+      return baseShape;
+    });
   
     editor.createShapes(shapes);
     editor.groupShapes(shapes.map(shape => shape.id), groupId);
@@ -30,7 +45,7 @@ function ZineEditor() {
     // Position the new group
     const currentPageShapes = editor.getCurrentPageShapes();
     const existingGroups = currentPageShapes.filter(shape => shape.type === 'group');
-    const xOffset = existingGroups.length * (template.width + 20);
+    const xOffset = existingGroups.length * (template.width + 40); // Increased spacing between layouts
     editor.updateShapes([{
       id: groupId,
       type: 'group',

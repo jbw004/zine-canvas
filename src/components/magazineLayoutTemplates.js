@@ -1,34 +1,34 @@
 const magazineLayoutTemplates = {
   cover: {
     name: 'Cover Layout',
-    width: 213,
-    height: 276,
+    width: 600,
+    height: 800,
     elements: [
-      { type: 'image', x: 0, y: 0, width: 213, height: 276, id: 'coverImage' },
-      { type: 'text', x: 10, y: 20, width: 193, height: 40, id: 'magazineTitle' },
-      { type: 'text', x: 10, y: 230, width: 193, height: 30, id: 'coverHeadline' },
+      { type: 'image', x: 0, y: 0, width: 600, height: 600, id: 'coverImage' },
+      { type: 'text', x: 30, y: 620, width: 540, height: 100, id: 'magazineTitle' },
+      { type: 'text', x: 30, y: 740, width: 540, height: 40, id: 'coverHeadline' },
     ]
   },
   contentsPage: {
     name: 'Contents Page',
-    width: 213,
-    height: 276,
+    width: 600,
+    height: 800,
     elements: [
-      { type: 'text', x: 10, y: 10, width: 193, height: 30, id: 'contentsTitle' },
-      { type: 'text', x: 10, y: 50, width: 93, height: 200, id: 'contentsLeft' },
-      { type: 'text', x: 110, y: 50, width: 93, height: 200, id: 'contentsRight' },
-      { type: 'image', x: 10, y: 210, width: 193, height: 60, id: 'contentsThumbnail' },
+      { type: 'text', x: 30, y: 30, width: 540, height: 60, id: 'contentsTitle' },
+      { type: 'text', x: 30, y: 110, width: 260, height: 660, id: 'contentsLeft' },
+      { type: 'text', x: 310, y: 110, width: 260, height: 660, id: 'contentsRight' },
     ]
   },
   featureSpread: {
-      name: 'Feature Spread',
-      elements: [
-        { type: 'image', x: 0, y: 0, width: 213, height: 180, id: 'featureImage' },
-        { type: 'text', x: 10, y: 190, width: 193, height: 30, id: 'featureTitle', fontSize: 24, fontWeight: 'bold' },
-        { type: 'text', x: 10, y: 230, width: 193, height: 40, id: 'featureSubtitle', fontSize: 16 },
-      ]
-    },
-    // Add more templates as needed
-  };
-  
-  export default magazineLayoutTemplates;
+    name: 'Feature Spread',
+    width: 600,
+    height: 800,
+    elements: [
+      { type: 'image', x: 30, y: 30, width: 540, height: 400, id: 'featureImage' },
+      { type: 'text', x: 30, y: 450, width: 540, height: 80, id: 'featureTitle' },
+      { type: 'text', x: 30, y: 550, width: 540, height: 220, id: 'featureContent' },
+    ]
+  },
+};
+
+export default magazineLayoutTemplates;
